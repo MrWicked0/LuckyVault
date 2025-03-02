@@ -1,6 +1,10 @@
 package com.alienseczero;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
@@ -8,6 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
@@ -86,30 +91,55 @@ public class LotteryMod {
             saveLotteryState();
             return;
         }
+
+        // Build a list of tickets (each ticket is the owner's UUID)
         List<UUID> tickets = new ArrayList<>();
         for (Map.Entry<UUID, Integer> entry : ticketEntries.entrySet()) {
             for (int i = 0; i < entry.getValue(); i++) {
                 tickets.add(entry.getKey());
             }
         }
+
+        // Pick a random ticket
         UUID winnerId = tickets.get(random.nextInt(tickets.size()));
         ServerPlayer winner = server.getPlayerList().getPlayer(winnerId);
-        int winnings = lotteryPot + LotteryConfig.BONUS_DIAMONDS;
+        int winnings = lotteryPot + LotteryConfig.BONUS_POT;
+
         if (winner != null) {
             lastWinner = winner.getName().getString();
             lastWinningAmount = winnings;
             leaderboard.put(winner.getUUID(), leaderboard.getOrDefault(winner.getUUID(), 0) + 1);
             LeaderboardManager.saveLeaderboard(leaderboard);
 
+            // Broadcast a congratulatory message
             server.getPlayerList().broadcastSystemMessage(
                     Component.literal("🎉 " + ChatFormatting.GOLD + "Congratulations to " + lastWinner +
                             ChatFormatting.RESET + " for winning the lottery! Total winnings: " +
                             ChatFormatting.AQUA + winnings + " diamonds" + ChatFormatting.RESET + "!"),
                     false
             );
-            winner.getInventory().add(new ItemStack(Items.DIAMOND, winnings));
+
+            // Create title and subtitle components
+            Component title = Component.literal("Congratulations!");
+            Component subtitle = Component.literal("You have won the Lottery!");
+
+            // Create title packets (adjust packet class names as needed)
+            ClientboundSetTitleTextPacket titlePacket = new ClientboundSetTitleTextPacket(title);
+            ClientboundSetSubtitleTextPacket subtitlePacket = new ClientboundSetSubtitleTextPacket(subtitle);
+            ClientboundSetTitlesAnimationPacket timingPacket = new ClientboundSetTitlesAnimationPacket(10, 70, 20);
+
+            // Send the title packets to the winner
+            winner.connection.send(titlePacket);
+            winner.connection.send(subtitlePacket);
+            winner.connection.send(timingPacket);
+
+            // Award the diamonds to the winner
+           // winner.getInventory().add(new ItemStack(Items.DIAMOND, winnings));
+            winner.getInventory().add(new ItemStack(LotteryConfig.getCurrencyItem(), winnings));
+
             LOGGER.info("Lottery Mod: {} won with {} diamonds!", lastWinner, winnings);
 
+            // Create a ground effect cloud
             AreaEffectCloud effectCloud = new AreaEffectCloud(winner.level(), winner.getX(), winner.getY(), winner.getZ());
             effectCloud.setParticle(LotteryConfig.getGroundParticle());
             effectCloud.setDuration(40); // lasts 2 seconds
@@ -118,16 +148,20 @@ public class LotteryMod {
             winner.level().addFreshEntity(effectCloud);
             LotteryEventHandler.registerCloud(effectCloud);
 
+            // Play a level-up sound effect
             winner.level().playSound(null, winner.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.0F);
             LotteryEventHandler.addWinnerEffect(winner.getUUID());
+
+            // Trigger the grand fireworks display for about 10 seconds (200 ticks)
+            new FireworksDisplay(winner, 120);
         } else {
             LOGGER.info("Lottery Mod: {} won but is offline. Storing winnings.", winnerId);
             unclaimedWinnings.put(winnerId, winnings);
             LotteryStateManager.saveUnclaimedWinnings(unclaimedWinnings);
         }
+
         ticketEntries.clear();
         lotteryPot = 0;
-        // Schedule next draw time using announcementIntervalSeconds in ms.
         nextDrawTime = System.currentTimeMillis() + LotteryConfig.announcementIntervalSeconds * 1000L;
         saveLotteryState();
     }
