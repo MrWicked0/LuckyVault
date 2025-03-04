@@ -1,7 +1,6 @@
 package com.alienseczero;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
@@ -12,7 +11,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.AreaEffectCloud;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
@@ -23,11 +21,11 @@ import org.slf4j.Logger;
 import java.security.SecureRandom;
 import java.util.*;
 
-@Mod(LotteryMod.MODID)
-public class LotteryMod {
-    public static final String MODID = "lotterymod";
+@Mod(LuckyVault.MODID)
+public class LuckyVault {
+    public static final String MODID = "luckyvault";
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static LotteryMod INSTANCE;
+    private static LuckyVault INSTANCE;
 
     // Map of player UUIDs to ticket counts.
     private final Map<UUID, Integer> ticketEntries = new HashMap<>();
@@ -47,7 +45,7 @@ public class LotteryMod {
     // New: Constant for the draw interval (in milliseconds).
     public static final long DRAW_INTERVAL = LotteryConfig.announcementIntervalSeconds * 1000L;
 
-    public LotteryMod(IEventBus modBus) {
+    public LuckyVault(IEventBus modBus) {
         INSTANCE = this;
         LOGGER.info("Lottery Mod Initialized!");
 
@@ -75,7 +73,7 @@ public class LotteryMod {
         leaderboard.putAll(LeaderboardManager.loadLeaderboard());
     }
 
-    public static LotteryMod getInstance() {
+    public static LuckyVault getInstance() {
         return INSTANCE;
     }
 

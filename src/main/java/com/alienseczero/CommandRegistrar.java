@@ -35,7 +35,7 @@ public class CommandRegistrar {
                 Commands.literal("lottery")
                         // Base /lottery command: displays general lottery info.
                         .executes(context -> {
-                            LotteryMod mod = LotteryMod.getInstance();
+                            LuckyVault mod = LuckyVault.getInstance();
 
                             int currentPot = mod.getLotteryPot() + LotteryConfig.BONUS_POT;
                             String lastWinner = mod.getLastWinner();
@@ -73,7 +73,7 @@ public class CommandRegistrar {
                         .then(Commands.literal("about")
                                 .executes(context -> {
                                     Component aboutMessage = Component.literal("")
-                                            .append(Component.literal("LotteryMod v1.1")
+                                            .append(Component.literal("LuckyVault v1.1")
                                                     .withStyle(style -> style.withColor(ChatFormatting.GOLD).withBold(true)))
                                             .append(Component.literal("\nDeveloped by ")
                                                     .withStyle(ChatFormatting.GRAY))
@@ -108,7 +108,7 @@ public class CommandRegistrar {
                         // /lottery leaderboard command.
                         .then(Commands.literal("leaderboard")
                                 .executes(context -> {
-                                    Map<UUID, Integer> board = LotteryMod.getInstance().getLeaderboard();
+                                    Map<UUID, Integer> board = LuckyVault.getInstance().getLeaderboard();
                                     if (board.isEmpty()) {
                                         context.getSource().sendSuccess(() ->
                                                 Component.literal(ChatFormatting.YELLOW + "No winners yet!"), false);
@@ -139,7 +139,7 @@ public class CommandRegistrar {
                                 .executes(context -> {
                                     try {
                                         MinecraftServer server = context.getSource().getServer();
-                                        LotteryMod.getInstance().drawLottery(server);
+                                        LuckyVault.getInstance().drawLottery(server);
                                         context.getSource().sendSuccess(() -> Component.literal(ChatFormatting.GREEN + "Lottery draw completed!"), true);
                                         return 1;
                                     } catch (Exception e) {
@@ -155,12 +155,12 @@ public class CommandRegistrar {
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayer();
                                     if (player == null) return 0;
-                                    int winnings = LotteryMod.getInstance().getUnclaimedWinnings(player.getUUID());
+                                    int winnings = LuckyVault.getInstance().getUnclaimedWinnings(player.getUUID());
                                     if (winnings <= 0) {
                                         player.sendSystemMessage(Component.literal(ChatFormatting.RED + "❌ You have no unclaimed lottery winnings."));
                                         return 0;
                                     }
-                                    LotteryMod.getInstance().claimWinnings(player);
+                                    LuckyVault.getInstance().claimWinnings(player);
                                     return 1;
                                 })
                         )
@@ -172,7 +172,7 @@ public class CommandRegistrar {
                                     if (player == null) return 0;
 
                                     UUID playerId = player.getUUID();
-                                    LotteryMod mod = LotteryMod.getInstance();
+                                    LuckyVault mod = LuckyVault.getInstance();
 
                                     int currentTickets = mod.getTicketEntries().getOrDefault(playerId, 0);
                                     if (currentTickets >= LotteryConfig.MAX_TICKETS_PER_PLAYER) {

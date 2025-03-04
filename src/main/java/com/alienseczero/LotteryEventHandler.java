@@ -17,15 +17,15 @@ import com.mojang.logging.LogUtils;
 import java.util.*;
 
 public class LotteryEventHandler {
-    private final LotteryMod mod;
-    // Remove our local tick counter and instead use LotteryMod's nextDrawTime.
+    private final LuckyVault mod;
+    // Remove our local tick counter and instead use LuckyVault's nextDrawTime.
     private static int advertisementTickCounter = 0;
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<UUID, Integer> playerTicketCounts = new HashMap<>();
     private static final Map<UUID, Long> activeEffects = new HashMap<>();
     private static final List<AreaEffectCloud> activeClouds = new ArrayList<>();
 
-    public LotteryEventHandler(LotteryMod mod) {
+    public LotteryEventHandler(LuckyVault mod) {
         this.mod = mod;
         LOGGER.info("LotteryEventHandler created.");
         playerTicketCounts.clear();
@@ -48,6 +48,7 @@ public class LotteryEventHandler {
             player.sendSystemMessage(Component.literal("🎉 Welcome back! You have been automatically paid out " + winnings + " diamonds from the lottery!"));
             player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.0F);
             addWinnerEffect(playerId);
+            new FireworksDisplay(player, 120);
         }
     }
 
@@ -60,17 +61,17 @@ public class LotteryEventHandler {
 
         long currentTime = System.currentTimeMillis();
         // Auto-draw the lottery when the current time exceeds the persistent nextDrawTime.
-        if (currentTime >= LotteryMod.getInstance().getNextDrawTime()) {
-            if (LotteryMod.getInstance().getTicketCount() > 0) {
+        if (currentTime >= LuckyVault.getInstance().getNextDrawTime()) {
+            if (LuckyVault.getInstance().getTicketCount() > 0) {
                 // Tickets were sold, proceed with the draw
-                LotteryMod.getInstance().drawLottery(server);
+                LuckyVault.getInstance().drawLottery(server);
                 LOGGER.info("Lottery draw triggered automatically.");
             } else {
                 // No tickets sold, log once and reset draw time
                 LOGGER.info("Lottery Mod: No tickets sold. Skipping draw.");
 
                 // Reset the next draw time to avoid continuous triggering
-                LotteryMod.getInstance().setNextDrawTime(currentTime + LotteryMod.DRAW_INTERVAL);
+                LuckyVault.getInstance().setNextDrawTime(currentTime + LuckyVault.DRAW_INTERVAL);
             }
         }
 
@@ -100,7 +101,7 @@ public class LotteryEventHandler {
 
     // Computes the remaining time (in seconds) until the next lottery draw using the persistent nextDrawTime.
     public static int getRemainingTimeSeconds() {
-        long remainingMs = LotteryMod.getInstance().getNextDrawTime() - System.currentTimeMillis();
+        long remainingMs = LuckyVault.getInstance().getNextDrawTime() - System.currentTimeMillis();
         return (int) Math.max(remainingMs / 1000, 0);
     }
 
