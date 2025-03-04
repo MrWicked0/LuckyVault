@@ -25,9 +25,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew clean build
 
-      - name: Debug Build Artifacts
+      - name: Debug Build Output
         run: ls -R build/libs || echo "No .jar file found!"
 
       - name: Upload Build Artifact
@@ -46,6 +46,9 @@ jobs:
         with:
           name: mod-jar
           path: temp_jar
+
+      - name: Debug Artifact Output
+        run: ls -R temp_jar || echo "No .jar file found in temp_jar!"
 
       - name: Verify Build Output
         run: |
