@@ -26,13 +26,22 @@ jobs:
 
       - name: Extract Version Number
         id: get_version
-        run: echo "VERSION=$(./gradlew properties | grep '^version:' | awk '{print $2}')" >> $GITHUB_ENV
+        run: |
+          VERSION=$(./gradlew properties | grep '^version:' | awk '{print $2}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo $VERSION > version.txt
 
       - name: Build with Gradle
         run: ./gradlew clean build
 
       - name: Debug Build Output
         run: ls -R build/libs || echo "No .jar file found!"
+
+      - name: Upload Version File
+        uses: actions/upload-artifact@v4
+        with:
+          name: version
+          path: version.txt
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -45,6 +54,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download Version File
+        uses: actions/download-artifact@v4
+        with:
+          name: version
+
+      - name: Read Version Number
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
