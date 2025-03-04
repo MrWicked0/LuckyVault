@@ -10,7 +10,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,8 +29,7 @@ jobs:
         id: get_version
         run: |
           VERSION=$(./gradlew properties | grep '^version:' | awk '{print $2}')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo $VERSION > version.txt
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -37,35 +37,23 @@ jobs:
       - name: Debug Build Output
         run: ls -R build/libs || echo "No .jar file found!"
 
-      - name: Upload Version File
-        uses: actions/upload-artifact@v4
-        with:
-          name: version
-          path: version.txt
-
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: LuckyVault-${{ env.VERSION }}
+          name: LuckyVault-${{ steps.get_version.outputs.VERSION }}
           path: build/libs/*.jar
 
   release:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Download Version File
-        uses: actions/download-artifact@v4
-        with:
-          name: version
-
-      - name: Read Version Number
-        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+      - name: Debug Extracted Version
+        run: echo "Extracted Version: ${{ needs.build.outputs.version }}"
 
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: LuckyVault-${{ env.VERSION }}
+          name: LuckyVault-${{ needs.build.outputs.version }}
           path: temp_jar
 
       - name: Debug Artifact Output
@@ -84,8 +72,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: Release v${{ env.VERSION }}
+          tag_name: v${{ needs.build.outputs.version }}
+          release_name: Release v${{ needs.build.outputs.version }}
           draft: false
           prerelease: false
 
@@ -96,5 +84,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: temp_jar/*.jar
-          asset_name: LuckyVault-${{ env.VERSION }}.jar
+          asset_name: LuckyVault-${{ needs.build.outputs.version }}.jar
           asset_content_type: application/java-archive
