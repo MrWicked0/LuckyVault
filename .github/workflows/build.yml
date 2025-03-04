@@ -64,7 +64,7 @@ jobs:
 
       - name: Verify Build Output
         run: |
-          if [ ! -d "temp_jar" ] || [ -z "$(ls -A temp_jar/*.jar 2>/dev/null)" ]; then
+          if [ ! -f "temp_jar/LuckyVault-${{ needs.build.outputs.version }}.jar" ]; then
             echo "No .jar file found, failing release."
             exit 1
           fi
@@ -86,6 +86,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: temp_jar/*.jar
+          asset_path: temp_jar/LuckyVault-${{ needs.build.outputs.version }}.jar
           asset_name: LuckyVault-${{ needs.build.outputs.version }}.jar
           asset_content_type: application/java-archive
