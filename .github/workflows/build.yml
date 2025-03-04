@@ -1,4 +1,4 @@
-name: Build, Create and Upload Release
+name: Build, Create, and Upload Release
 
 on:
   push:
