@@ -37,7 +37,7 @@ LotteryMod is a lightweight yet feature-rich server-side lottery system designed
 
 ### Requirements
 
-- **NeoForge:**  
+- **NeoForge:**  1.24.1 Loader Version
   LotteryMod is built for NeoForge Minecraft servers.
 
 - **Server-Side Only:**  
