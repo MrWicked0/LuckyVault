@@ -1,9 +1,7 @@
-name: Build and Upload .jar
+name: Build, Create and Upload Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -11,24 +9,52 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out your repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Java 21 using the Temurin distribution
       - name: Set up Java 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '21'
 
-      # Step 3: Build the project using the Gradle wrapper
       - name: Build with Gradle
         run: ./gradlew build
 
-      # Step 4: Upload the generated .jar as an artifact
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: mod-jar
           path: build/libs/*.jar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: mod-jar
+          path: temp_jar
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: temp_jar/*.jar
+          asset_name: mod-jar-${{ github.run_number }}.jar
+          asset_content_type: application/java-archive
