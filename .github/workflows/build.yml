@@ -35,7 +35,8 @@ jobs:
         run: ./gradlew clean build
 
       - name: Debug Build Output
-        run: ls -R build/libs || echo "No .jar file found!"
+        run: |
+          ls -R build/libs || echo "No .jar file found!"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -48,8 +49,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Debug Extracted Version
-        run:
-          echo 'Extracted Version: ${{ needs.build.outputs.version }}'
+        run: |
+          echo "Extracted Version: ${{ needs.build.outputs.version }}"
+
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -57,7 +59,8 @@ jobs:
           path: temp_jar
 
       - name: Debug Artifact Output
-        run: ls -R temp_jar || echo "No .jar file found in temp_jar!"
+        run: |
+          ls -R temp_jar || echo "No .jar file found in temp_jar!"
 
       - name: Verify Build Output
         run: |
