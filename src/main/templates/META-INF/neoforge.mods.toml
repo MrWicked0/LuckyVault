@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[7,)" # Accept any loader version 7.x
+
+license="MIT"
+
+[[mods]]
+modId="luckyvault"
+version="1.1.3"
+displayName="LuckyVault"
+authors="AlienSecZero"
+description='''LuckyVault is a server-side lottery plugin for Minecraft using NeoForge. It allows players to buy tickets, win items, and compete for leaderboard rewards.'''
+
+[[dependencies.luckyvault]]
+modId="neoforge"
+type="required"
+versionRange="[21.5.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.luckyvault]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.5,1.22)"
+ordering="NONE"
+side="BOTH"

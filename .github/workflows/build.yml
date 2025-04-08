@@ -1,0 +1,91 @@
+name: Build, Create, and Upload Release
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Extract Version Number
+        id: get_version
+        run: |
+          VERSION=$(./gradlew properties | grep '^version:' | awk '{print $2}')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Debug Build Output
+        run: |
+          ls -R build/libs || echo "No .jar file found!"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LuckyVault-${{ steps.get_version.outputs.VERSION }}
+          path: build/libs/*.jar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Extracted Version
+        run: |
+          echo "Extracted Version: ${{ needs.build.outputs.version }}"
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LuckyVault-${{ needs.build.outputs.version }}
+          path: temp_jar
+
+      - name: Debug Artifact Output
+        run: |
+          ls -R temp_jar || echo "No .jar file found in temp_jar!"
+
+      - name: Verify Build Output
+        run: |
+          if [ ! -f "temp_jar/LuckyVault-${{ needs.build.outputs.version }}.jar" ]; then
+            echo "No .jar file found, failing release."
+            exit 1
+          fi
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.build.outputs.version }}-build${{ github.run_number }}
+          release_name: Release v${{ needs.build.outputs.version }} (Build ${{ github.run_number }})
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: temp_jar/LuckyVault-${{ needs.build.outputs.version }}.jar
+          asset_name: LuckyVault-${{ needs.build.outputs.version }}.jar
+          asset_content_type: application/java-archive
