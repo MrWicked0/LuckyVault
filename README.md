@@ -1,25 +1,38 @@
+# LuckyVault 🎲💎
 
-Installation information
-=======
+Updated For Minecraft 1.21.5!!
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+**LuckyVault** – A Server-Side Lottery System for NeoForge Minecraft  
+LuckyVault is a lightweight yet feature-rich server-side lottery system designed for NeoForge-based Minecraft servers. It introduces an exciting, automated lottery system where players can purchase tickets for a chance to win in-game diamonds.
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+## ✨ Features
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+- **✅ Automated Lottery Draws:**  
+  The system automatically selects a winner at regular intervals, ensuring fair and randomized results.
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+- **💎 Diamond-Based Winnings:**  
+  Players can win a jackpot of diamonds. As more tickets are sold, the total pot increases, offering higher rewards.
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+- **🏆 Leaderboard Support:**  
+  Tracks and displays the top winners over time, adding a competitive element to the lottery.
+
+- **📥 Unclaimed Winnings Storage:**  
+  If a player wins while offline, their winnings are stored safely for later collection.
+
+- **💬 Customizable Announcements:**  
+  Lottery results are announced in chat with clear, color-coded messages for easy readability.
+
+- **⌨️ Simple Commands:**  
+  Players can easily interact with the lottery system using these commands:
+  - ``/lottery`` – View lottery info, pot size, last winner, and time until the next draw.
+  - ``/lottery buy`` – Purchase a ticket for the next draw (subject to max ticket limits).
+  - ``/lottery claim`` – Claim unclaimed winnings if a player was offline during a draw (automatically processed on login).
+  - ``/lottery leaderboard`` – View the top winners on the server.
+
+- **🖥️ Server-Friendly & Lightweight:**  
+  Designed with minimal performance impact, making it ideal for long-term survival and economy-based servers.
+
+- **⚙️ NeoForge Compatibility:**  
+  Built specifically for NeoForge Minecraft servers, ensuring seamless integration.
+
+## 📥 Installation
