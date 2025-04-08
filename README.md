@@ -1,5 +1,7 @@
 # LuckyVault 🎲💎
 
+Updated For Minecraft 1.21.5!!
+
 **LuckyVault** – A Server-Side Lottery System for NeoForge Minecraft  
 LuckyVault is a lightweight yet feature-rich server-side lottery system designed for NeoForge-based Minecraft servers. It introduces an exciting, automated lottery system where players can purchase tickets for a chance to win in-game diamonds.
 
@@ -37,7 +39,7 @@ LuckyVault is a lightweight yet feature-rich server-side lottery system designed
 
 ### Requirements
 
-- **NeoForge:**  1.24.1 Loader Version
+- **NeoForge:**  1.21.5 Loader Version
   LotteryMod is built for NeoForge Minecraft servers.
 
 - **Server-Side Only:**  
